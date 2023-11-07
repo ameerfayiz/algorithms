@@ -1,0 +1,90 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <chrono>
+#include <iomanip>
+
+#define RUN 32
+
+void insertionSort(std::vector<int> &arr, int left, int right) {
+    for (int i = left + 1; i <= right; i++) {
+        int temp = arr[i];
+        int j = i - 1;
+        while (j >= left && arr[j] > temp) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = temp;
+    }
+}
+
+void mergeSort(std::vector<int> &arr, int left, int mid, int right) {
+    int len1 = mid - left + 1, len2 = right - mid;
+    std::vector<int> leftArray(len1), rightArray(len2);
+    for (int x = 0; x < len1; x++) {
+        leftArray[x] = arr[left + x];
+    }
+    for (int x = 0; x < len2; x++) {
+        rightArray[x] = arr[mid + 1 + x];
+    }
+    int i = 0, j = 0, k = left;
+    while (i < len1 && j < len2) {
+        if (leftArray[i] <= rightArray[j]) {
+            arr[k] = leftArray[i];
+            i++;
+        } else {
+            arr[k] = rightArray[j];
+            j++;
+        }
+        k++;
+    }
+    while (i < len1) {
+        arr[k] = leftArray[i];
+        i++;
+        k++;
+    }
+    while (j < len2) {
+        arr[k] = rightArray[j];
+        j++;
+        k++;
+    }
+}
+
+void timSort(std::vector<int> &arr) {
+    int n = arr.size();
+    for (int i = 0; i < n; i += RUN) {
+        insertionSort(arr, i, std::min((i + 31), (n - 1)));
+    }
+    for (int size = RUN; size < n; size = 2 * size) {
+        for (int left = 0; left < n; left += 2 * size) {
+            int mid = left + size - 1;
+            int right = std::min((left + 2 * size - 1), (n - 1));
+            mergeSort(arr, left, mid, right);
+        }
+    }
+}
+
+int main() {
+    int size = 1000;
+    int* data = new int[size];
+    for (int i = 0; i < size; i++) {
+        data[i] = rand();
+    }
+    
+    std::vector<int> arr(data, data + size);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    timSort(arr);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    double time_taken = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+    time_taken *= 1e-9;
+
+    std::cout << "Time taken by program is : " << std::fixed << std::setprecision(9) << time_taken;
+    std::cout << " sec" << std::endl;
+
+    delete[] data; // Don't forget to deallocate the dynamically allocated memory
+    return 0;
+}
