@@ -6,6 +6,9 @@
 
 #define RUN 32
 
+// compile without console : g++ -o no_console.exe test.cpp -luser32 -mwindows
+// compile with console : g++ -o with_console.exe test.cpp 
+
 void insertionSort(std::vector<int> &arr, int left, int right) {
     for (int i = left + 1; i <= right; i++) {
         int temp = arr[i];
